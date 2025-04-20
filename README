@@ -1,1 +1,23 @@
-Это readme
+Это проект, использующий фреймворк Symfony 7.
+
+Для работы с проектом необходимы:
+СУБД
+Composer
+PHP 8.1 и выше
+
+Скачав проект перейдите в его директорию и установите зависимости
+composer install
+
+откройте файл .env и настройте параметры подключения к вашей БД, например
+DATABASE_URL="mysql://username:password@127.0.0.1:3306/db_name?serverVersion=5.7"
+
+Лично я хранил БД в Докере, а конфиги для её создания хранились в файле compose.yaml
+
+выполните миграции для создания структуры БД
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+
+В качестве локального веб-сервера можно использовать стандартный PHP, либо, если у вас есть Symfony CLI, использовать Symfony
+symfony server:start --d 
+тогда проект запустится в режиме разработки
+
