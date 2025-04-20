@@ -26,14 +26,22 @@ export function showForm(formType) {
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login');
 
+    const registerBtn = document.querySelector('.switch-button[data-form="register"]');
+    const loginBtn = document.querySelector('.switch-button[data-form="login"]');
+
     if (formType === 'register') {
         registerForm.style.display = 'block';
         loginForm.style.display = 'none';
+
+        registerBtn.classList.add('active-switch');
+        loginBtn.classList.remove('active-switch');
     } else {
         registerForm.style.display = 'none';
         loginForm.style.display = 'block';
-    }
 
+        loginBtn.classList.add('active-switch');
+        registerBtn.classList.remove('active-switch');
+    }
 }
 
 // Добавляем обработчики на кнопки для переключения форм

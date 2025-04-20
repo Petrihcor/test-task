@@ -8,7 +8,7 @@ document.getElementById('task-form').addEventListener('submit', async function (
 
     // Проверка на пустые поля
     if (!name) {
-        alert('Task name is required');
+        alert('Название обязательно');
         return;
     }
 
@@ -17,7 +17,7 @@ document.getElementById('task-form').addEventListener('submit', async function (
         const token = localStorage.getItem('jwt_token');
 
         if (!token) {
-            alert('You must be logged in to add a task');
+            alert('Для добавления задачи нужно пройти авторизацию');
             return;
         }
 
@@ -34,7 +34,7 @@ document.getElementById('task-form').addEventListener('submit', async function (
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Error adding task');
+            throw new Error(data.error || 'Ошибка добавления');
         }
 
         // После успешного добавления задачи, очищаем форму
@@ -42,7 +42,7 @@ document.getElementById('task-form').addEventListener('submit', async function (
 
         renderTask(data.task);
 
-        alert('Task added successfully!');
+        alert('Задача успешно добавлена!');
 
     } catch (err) {
         console.error('Error:', err);

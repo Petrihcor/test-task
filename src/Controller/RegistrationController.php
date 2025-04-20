@@ -69,7 +69,7 @@ class RegistrationController extends AbstractController
         // Проверка на существование пользователя с таким email
         $existingUser = $userRepository->findOneBy(['username' => $data['username']]);
         if ($existingUser) {
-            return new JsonResponse(['error' => 'User already exists'], 400);
+            return new JsonResponse(['error' => 'Пользователь уже существует'], 400);
         }
 
         // Создание нового пользователя

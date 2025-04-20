@@ -3,19 +3,18 @@ body{
     background-color: #f4f4f9;
 }
 /*Стили для формы авторизации*/
-/* Стиль для контейнера */
 #login_container {
     display: flex;
-    justify-content: center;  /* Горизонтальное выравнивание */
-    align-items: center;      /* Вертикальное выравнивание */
-    height: 100vh;            /* Занять всю высоту экрана */
-    background-color: #f4f4f4; /* Фоновый цвет для экрана */
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
 }
 
-/* Обертка для формы (по центру) */
+
 .form-center-body {
     width: 100%;
-    max-width: 500px;  /* Максимальная ширина формы */
+    max-width: 500px;
     padding: 20px;
     background-color: white;
     border-radius: 8px;
@@ -70,6 +69,12 @@ input.form-control, input[type="text"], input[type="password"], textarea {
 
 .switch-button:hover {
     color: #007bff;
+}
+
+.switch-button.active-switch {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
 }
 
 label {
