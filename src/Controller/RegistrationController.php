@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +26,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/api/register', name: 'app_register')]
-    public function register(Request $request, UserRepository $userRepository, ValidatorInterface $validator): JsonResponse
+    public function register(Request $request, UserRepository $userRepository, ValidatorInterface $validator, LoggerInterface $logger): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -62,7 +63,6 @@ class RegistrationController extends AbstractController
             foreach ($violations as $violation) {
                 $errors[] = $violation->getMessage();
             }
-
             return new JsonResponse(['errors' => $errors], 400);
         }
 

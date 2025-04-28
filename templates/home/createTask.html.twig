@@ -1,8 +1,0 @@
-<h2 id="toggle-task-form" style="cursor: pointer;">Создать задачу</h2>
-<div id="task-form-wrapper" style="display: none;">
-    {{ form_start(taskForm, {'attr': {'id': 'task-form'}}) }}
-    {{ form_row(taskForm.name) }}
-    {{ form_row(taskForm.description) }}
-    <button type="submit" class="btn btn-primary">Создать</button>
-    {{ form_end(taskForm) }}
-</div>

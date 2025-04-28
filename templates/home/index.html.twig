@@ -8,11 +8,7 @@
 
 {% block body %}
     <button id="logout-btn" style="display: none;">Выйти</button>
-    {% include 'home/authorization.html.twig' %}
-    <div id="task-container" style="display: none;">
-        {% include 'home/createTask.html.twig' %}
-        {% include 'home/listTasks.html.twig' %}
+    <div id="app">
+        <App />
     </div>
-    {% include 'home/editTask.html.twig' %}
 {% endblock %}
-

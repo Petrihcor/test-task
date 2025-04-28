@@ -21,16 +21,16 @@ final class HomeController extends AbstractController
     public function index(): Response
     {
 
-        $user = new User();
-        $registerForm = $this->createForm(RegistrationFormType::class, $user, [
-            'action' => $this->generateUrl('app_register')
-        ]);
-        $task = new Task(); // Предполагается, что у тебя есть сущность Task
-        $taskForm = $this->createForm(TaskType::class, $task);
+//        $user = new User();
+//        $registerForm = $this->createForm(RegistrationFormType::class, $user, [
+//            'action' => $this->generateUrl('app_register')
+//        ]);
+//        $task = new Task(); // Предполагается, что у тебя есть сущность Task
+//        $taskForm = $this->createForm(TaskType::class, $task);
         //Вывод шаблона для входа
         return $this->render('home/index.html.twig', [
-            'registrationForm' => $registerForm,
-            'taskForm' => $taskForm->createView(),
+//            'registrationForm' => $registerForm,
+//            'taskForm' => $taskForm->createView(),
         ]);
     }
 

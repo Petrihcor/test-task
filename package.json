@@ -1,0 +1,49 @@
+{
+    "devDependencies": {
+        "@babel/core": "^7.17.0",
+        "@babel/preset-env": "^7.16.0",
+        "@symfony/webpack-encore": "^5.0.0",
+        "core-js": "^3.38.0",
+        "postcss-loader": "^8.1.1",
+        "regenerator-runtime": "^0.13.9",
+        "sass": "^1.87.0",
+        "sass-loader": "^16.0.5",
+        "vue-loader": "^17.3.1",
+        "vue-template-compiler": "^2.7.16",
+        "webpack": "^5.99.7",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.2.1",
+        "webpack-notifier": "^1.15.0"
+    },
+    "license": "UNLICENSED",
+    "private": true,
+    "scripts": {
+        "dev-server": "encore dev-server",
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production --progress"
+    },
+    "name": "test-task",
+    "version": "1.0.0",
+    "description": "Это проект, использующий фреймворк Symfony 7.",
+    "main": "webpack.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Petrihcor/test-task.git"
+    },
+    "keywords": [],
+    "author": "",
+    "bugs": {
+        "url": "https://github.com/Petrihcor/test-task/issues"
+    },
+    "homepage": "https://github.com/Petrihcor/test-task#readme",
+    "dependencies": {
+        "@symfony/stimulus-bundle": "^2.24.0",
+        "@symfony/ux-vue": "^2.24.0",
+        "@vue/compiler-sfc": "^3.5.13",
+        "vue": "^3.5.13"
+    }
+}
