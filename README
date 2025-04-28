@@ -8,14 +8,19 @@ PHP 8.1 и выше
 Скачав проект перейдите в его директорию и установите зависимости
 composer install
 
-откройте файл .env и настройте параметры подключения к вашей БД, например
-DATABASE_URL="mysql://username:password@127.0.0.1:3306/db_name?serverVersion=5.7"
+Базу данных я хранил в Докере, а конфиги для её создания хранились в файле compose.yaml.
+В файле .env настраиваются параметры подключения symfony к вашей БД, например у меня это было
+DATABASE_URL="postgresql://admin:123@127.0.0.1:5432/main?serverVersion=16&charset=utf8"
 
-Лично я хранил БД в Докере, а конфиги для её создания хранились в файле compose.yaml
+Далее происходил запуск контейнеров
+docker-compose up -d 
 
 выполните миграции для создания структуры БД
-php bin/console doctrine:database:create
+symfony console make:migration (вероятно потребуется вручную добавить директорию migrations в корень проекта)
 php bin/console doctrine:migrations:migrate
+
+Сгенерируйте ключи для авторизации
+php bin/console lexik:jwt:generate-keypair
 
 В качестве локального веб-сервера можно использовать стандартный PHP, либо, если у вас есть Symfony CLI, использовать Symfony
 symfony server:start --d 
