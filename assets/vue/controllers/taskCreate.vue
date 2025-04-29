@@ -35,7 +35,7 @@ const showForm = ref(false)
 const task = ref({
   name: '',
   description: '',
-  imageBase64: ''  // Добавляем поле для изображения
+  imageBase64: ''
 })
 
 const selectedFile = ref(null);

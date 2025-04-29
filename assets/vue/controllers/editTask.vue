@@ -23,6 +23,7 @@
 
         <label for="edit-task-image">Новое изображение:</label>
         <input type="file" id="edit-task-image" @change="handleFileUpload" />
+
         <button type="submit">Сохранить</button>
       </form>
     </div>
@@ -41,13 +42,23 @@ const task = ref({
   name: '',
   description: '',
   isCompleted: false,
-  image: ''
+  image: '',
+  imageBase64: ''
 })
 const selectedFile = ref(null);
 const removeImage = ref(false);
 
 function handleFileUpload(event) {
-  selectedFile.value = event.target.files[0];
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const fileType = file.type.split('/')[1];
+      task.value.imageBase64 = `data:image/${fileType};base64,${reader.result.split(',')[1]}`;
+      selectedFile.value = file;
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
 function removeCurrentImage() {
@@ -57,9 +68,12 @@ function removeCurrentImage() {
 function openModal(taskData) {
   task.value = {
     ...taskData,
-    isCompleted: !!taskData.isCompleted // приводим к true/false
+    isCompleted: !!taskData.isCompleted,
+    imageBase64: taskData.imageBase64 || ''
   };
-  isVisible.value = true
+  removeImage.value = false;
+  selectedFile.value = null;
+  isVisible.value = true;
 }
 
 function closeModal() {
@@ -68,23 +82,33 @@ function closeModal() {
 
 async function submitEdit() {
   const token = localStorage.getItem('jwt_token');
+
+  const formData = {
+    name: task.value.name,
+    description: task.value.description,
+    isCompleted: !!task.value.isCompleted,
+  };
+
+  if (removeImage.value) {
+    formData.removeImage = true;
+  }
+
+  if (selectedFile.value) {
+    formData.imageBase64 = task.value.imageBase64;
+  }
+
   try {
     const response = await fetch(`/api/task/${task.value.id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        name: task.value.name,
-        description: task.value.description,
-        isCompleted: !!task.value.isCompleted
-      })
+      body: JSON.stringify(formData)
     });
 
     if (response.ok) {
       closeModal();
-      emit('task-updated'); // Обновляем список
+      emit('task-updated');
     } else {
       const error = await response.json();
       alert(error.message || 'Ошибка при обновлении');
@@ -104,6 +128,7 @@ defineExpose({ openModal })
 .modal-content button {
   box-sizing: border-box;
 }
+
 /* Модалка */
 .modal {
   display: flex;
@@ -123,7 +148,7 @@ defineExpose({ openModal })
   border-radius: 10px;
   position: relative;
   width: 100%;
-  max-width: 600px; /* Ограничиваем максимальную ширину */
+  max-width: 600px;
   box-sizing: border-box;
   overflow: auto;
 }
@@ -168,7 +193,7 @@ button {
 }
 
 button:hover {
-  background-color:  #0056b3;
+  background-color: #0056b3;
 }
 
 /* Кнопка закрытия */

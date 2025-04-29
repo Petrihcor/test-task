@@ -92,7 +92,7 @@ final class TaskController extends AbstractController
         // Создаём задачу
         $task = new Task();
         if (!empty($data['imageBase64'])) {
-            $imagePath = $this->imageSaver->saveBase64Image($data['imageBase64'], $logger);
+            $imagePath = $this->imageSaver->saveBase64Image($data['imageBase64']);
 
             if ($imagePath) {
                 $task->setImage($imagePath);
@@ -145,6 +145,7 @@ final class TaskController extends AbstractController
         }
 
         if (!empty($data['imageBase64'])) {
+            $logger->info("условие выполнилось {$data['imageBase64']}");
             if ($task->getImage()) {
                 $imageSaver->deleteImage($task->getImage());
             }

@@ -15,9 +15,8 @@ class Base64ImageSaver
     }
 
 
-    public function saveBase64Image(string $base64, LoggerInterface $logger): ?string
+    public function saveBase64Image(string $base64): ?string
     {
-        $logger->info("Путь для сохранения изображения: " . $this->uploadDir);
         if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
 
             $data = substr($base64, strpos($base64, ',') + 1);
