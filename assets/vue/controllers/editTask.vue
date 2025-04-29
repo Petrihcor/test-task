@@ -26,7 +26,7 @@
 <script setup>
 import { ref, defineExpose, defineEmits } from 'vue'
 
-const emit = defineEmits(['task-updated']) // объявляем событие
+const emit = defineEmits(['task-updated'])
 
 const isVisible = ref(false)
 
@@ -38,7 +38,10 @@ const task = ref({
 })
 
 function openModal(taskData) {
-  task.value = { ...taskData }
+  task.value = {
+    ...taskData,
+    isCompleted: !!taskData.isCompleted // приводим к true/false
+  };
   isVisible.value = true
 }
 
@@ -47,7 +50,7 @@ function closeModal() {
 }
 
 async function submitEdit() {
-  const token = localStorage.getItem('jwt_token')
+  const token = localStorage.getItem('jwt_token');
   try {
     const response = await fetch(`/api/task/${task.value.id}`, {
       method: 'PUT',
@@ -58,19 +61,19 @@ async function submitEdit() {
       body: JSON.stringify({
         name: task.value.name,
         description: task.value.description,
-        isCompleted: task.value.isCompleted
+        isCompleted: !!task.value.isCompleted
       })
-    })
+    });
 
     if (response.ok) {
-      closeModal()
-      emit('task-updated') // ЭМИТИМ СОБЫТИЕ!
+      closeModal();
+      emit('task-updated'); // Обновляем список
     } else {
-      const error = await response.json()
-      alert(error.message || 'Ошибка при обновлении')
+      const error = await response.json();
+      alert(error.message || 'Ошибка при обновлении');
     }
   } catch (err) {
-    console.error('Ошибка при обновлении:', err)
+    console.error('Ошибка при обновлении:', err);
   }
 }
 
@@ -78,6 +81,13 @@ defineExpose({ openModal })
 </script>
 
 <style scoped>
+.modal-content form,
+.modal-content input,
+.modal-content textarea,
+.modal-content button {
+  box-sizing: border-box;
+}
+/* Модалка */
 .modal {
   display: flex;
   position: fixed;
@@ -85,19 +95,81 @@ defineExpose({ openModal })
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
 }
 
+/* Контейнер модалки */
 .modal-content {
-  background: white;
+  background: #fff;
   padding: 2rem;
   border-radius: 10px;
   position: relative;
+  width: 100%;
+  max-width: 600px; /* Ограничиваем максимальную ширину */
+  box-sizing: border-box;
+  overflow: auto;
 }
 
+/* Заголовок */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Стили для формы */
+label {
+  display: block;
+  margin: 0.5rem 0 0.3rem;
+  font-size: 1rem;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Чекбокс */
+input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+/* Кнопка */
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color:  #0056b3;
+}
+
+/* Кнопка закрытия */
 .close {
   position: absolute;
   right: 10px;
   top: 10px;
   cursor: pointer;
+  font-size: 1.5rem;
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

@@ -129,7 +129,7 @@ button.btn-success {
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  background-color: #28a745;
+  background-color: #007bff;
   border: none;
   border-radius: 5px;
   color: white;
@@ -139,7 +139,7 @@ button.btn-success {
 }
 
 button.btn-success:hover {
-  background-color: #218838;
+  background-color: #0056b3;
 }
 
 /* Кнопка "Создать задачу"/"Скрыть форму" */

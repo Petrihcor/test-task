@@ -26,22 +26,28 @@ final class TaskController extends AbstractController
         }
 
         // Получаем параметр фильтра из запроса (по умолчанию показываем все задачи)
+        $page = max((int) $request->query->get('page', 1), 1);
+        $limit = min((int) $request->query->get('limit', 1), 1); // например, 10 по умолчанию
+        $offset = ($page - 1) * $limit;
+
         $status = $request->query->get('isCompleted', null);
-        $logger->info("status is: $status");
+
+        $criteria = ["creator" => $user];
         if ($status === "true") {
-            $tasks = $repository->findBy([
-                "creator" => $this->getUser(),
-                "isCompleted" => true
-            ]);
+            $criteria["isCompleted"] = true;
         } elseif ($status === "false") {
-            $tasks = $repository->findBy([
-                "creator" => $this->getUser(),
-                "isCompleted" => false
-            ]);
-        } else {
-            $tasks = $repository->findBy(["creator" => $this->getUser()]);
+            $criteria["isCompleted"] = false;
         }
 
+        $tasks = $repository->findBy(
+            $criteria,
+            ["id" => "DESC"],
+            $limit,
+            $offset
+        );
+
+        $totalTasks = $repository->count($criteria);
+//я хотел передавать массив с объектами, но почему-то на фронте isCompleted преобразовывалось в completed
         $data = array_map(fn($task) => [
             'id' => $task->getId(),
             'name' => $task->getName(),
@@ -50,7 +56,14 @@ final class TaskController extends AbstractController
             'isCompleted' => $task->isCompleted(),
             'description' => $task->getDescription(),
         ], $tasks);
-        return $this->json($data);
+
+        return $this->json([
+            'tasks' => $data,
+            'total' => $totalTasks,
+            'page' => $page,
+            'limit' => $limit,
+            'pages' => ceil($totalTasks / $limit),
+            ]);
     }
 
     #[Route('api/task', name: 'api_create_task', methods: ['POST'])]

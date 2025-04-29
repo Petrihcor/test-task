@@ -41,7 +41,6 @@ const handleLogout = () => {
 
 <style scoped>
 /* Стили для главного компонента */
-
 /* Контейнер для приветствия и кнопки */
 .header {
   position: absolute;

@@ -21,14 +21,17 @@
           <div class="form-group">
             <label for="reg-username">Имя</label>
             <input v-model="registerForm.username" type="text" id="reg-username" class="form-control" required />
+            <div v-if="registerError.username" style="color: red; margin-top: 5px;">{{ registerError.username }}</div>
           </div>
           <div class="form-group">
             <label for="reg-password">Пароль</label>
             <input v-model="registerForm.password" type="password" id="reg-password" class="form-control" required />
+            <div v-if="registerError.password" style="color: red; margin-top: 5px;">{{ registerError.password }}</div>
           </div>
           <button type="submit" class="btn">Регистрация</button>
         </form>
       </div>
+
 
       <div v-show="activeForm === 'login'" class="form-container">
         <form id="login-form" @submit.prevent="submitLogin">
@@ -66,10 +69,34 @@ const loginForm = ref({
   password: ''
 })
 const loginError = ref('');
+const registerError = ref({
+  username: '',
+  password: ''
+})
+// Валидация регистрации
+const validateRegister = () => {
+  registerError.value = { username: '', password: '' }; // очищаем ошибки
 
+  let isValid = true;
+
+  if (registerForm.value.username.length < 3) {
+    registerError.value.username = 'Имя должно быть не короче 3 символов';
+    isValid = false;
+  }
+
+  if (registerForm.value.password.length < 6) {
+    registerError.value.password = 'Пароль должен быть не короче 6 символов';
+    isValid = false;
+  }
+
+  return isValid;
+}
 
 const submitRegister = async () => {
   // Здесь отправка на app_register, например через fetch
+  if (!validateRegister()) {
+    return; // прекращаем выполнение, если форма невалидна
+  }
   console.log('Регистрация', registerForm.value)
   try {
     const response = await fetch('/api/register', {

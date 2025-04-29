@@ -1,6 +1,6 @@
 <template>
   <task-create @task-created="loadTasks" />
-  <div>
+  <div class="task-container">
     <div class="status-filters">
       <label class="status-option">
         <input type="radio" name="status" value="all" v-model="filterStatus" /> Все
@@ -17,10 +17,20 @@
     <div v-for="task in tasks" :key="task.id" class="task-item">
       <h3>{{ task.name }}</h3>
       <p>{{ task.description }}</p>
-      <p>Статус: {{ task.isCompleted ? 'Выполнено' : 'В процессе' }}</p>
+      <p>Статус: {{ Boolean(task.isCompleted) ? 'Выполнено' : 'В процессе' }}</p>
 
       <button @click="openEditModal(task)">Редактировать</button>
       <button class="delete" @click="deleteTask(task.id)">Удалить</button>
+    </div>
+    <div class="pagination">
+      <button
+          v-for="p in totalPages"
+          :key="p"
+          @click="changePage(p)"
+          :class="{ active: page === p }"
+      >
+        {{ p }}
+      </button>
     </div>
     <edit-task ref="editModal" @task-updated="loadTasks" />
     <div v-if="tasks.length === 0">
@@ -35,23 +45,33 @@ import EditTask from "./editTask.vue";
 import TaskCreate from "./taskCreate.vue";
 
 const tasks = ref([]);
-const filterStatus = ref('all'); // по умолчанию - все
+const filterStatus = ref('all');
+
+//пагинация
+const page = ref(1);
+const limit = ref(1);
+const totalPages = ref(1);
+
+const changePage = (p) => {
+  if (p !== page.value) {
+    page.value = p;
+    loadTasks();
+  }
+};
 
 const loadTasks = async () => {
   const token = localStorage.getItem('jwt_token');
   if (!token) {
-    console.warn('Пользователь не авторизован');
     tasks.value = [];
     return;
   }
 
-  let url = '/api/task';
+  let url = `/api/task?page=${page.value}&limit=${limit.value}`;
   if (filterStatus.value !== 'all') {
-    url += `?isCompleted=${filterStatus.value}`;
+    url += `&isCompleted=${filterStatus.value}`;
   }
 
   try {
-    console.log('Запрашиваем задачи с URL:', url);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -60,19 +80,18 @@ const loadTasks = async () => {
       }
     });
 
-    if (!response.ok) {
-      throw new Error('Ошибка загрузки задач');
-    }
-
     const data = await response.json();
-    console.log('Полученные задачи:', data);
-    tasks.value = data;
+    console.log('Задачи с сервера:', data.tasks); // Добавить логирование, чтобы увидеть, что приходит
+    tasks.value = data.tasks;
+    totalPages.value = data.pages;
 
   } catch (err) {
     console.error('Ошибка при загрузке задач:', err);
     tasks.value = [];
   }
 };
+
+
 
 // Загружаем задачи при первом рендере
 onMounted(() => {
@@ -129,7 +148,7 @@ const deleteTask = async (taskId) => {
 
 <style scoped>
 /* Обёртка для списка задач */
-div {
+.task-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
@@ -164,7 +183,6 @@ h2 {
   padding: 15px;
   margin-bottom: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -230,5 +248,24 @@ div[v-if="tasks.length === 0"] {
   text-align: center;
   color: #aaa;
   font-size: 16px;
+}
+
+.pagination button {
+  margin: 5px;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  background-color: #eee;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button:hover {
+  background-color: #ddd;
 }
 </style>
