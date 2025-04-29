@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Repository\TaskRepository;
+use App\Service\Base64ImageSaver;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +18,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class TaskController extends AbstractController
 {
+    private Base64ImageSaver $imageSaver;
+
+    // Symfony автоматически инжектирует зависимость через конструктор
+    public function __construct(Base64ImageSaver $imageSaver)
+    {
+        $this->imageSaver = $imageSaver;
+    }
     #[Route('api/task', name: 'app_task', methods: ['GET'])]
     public function getTasks(TaskRepository $repository, Request $request, LoggerInterface $logger): JsonResponse
     {
@@ -27,7 +35,7 @@ final class TaskController extends AbstractController
 
         // Получаем параметр фильтра из запроса (по умолчанию показываем все задачи)
         $page = max((int) $request->query->get('page', 1), 1);
-        $limit = min((int) $request->query->get('limit', 1), 1); // например, 10 по умолчанию
+        $limit = min((int) $request->query->get('limit', 10), 100); // например, 10 по умолчанию
         $offset = ($page - 1) * $limit;
 
         $status = $request->query->get('isCompleted', null);
@@ -55,6 +63,7 @@ final class TaskController extends AbstractController
             'updatedAt' => $task->getUpdatedAt()->format(\DateTime::ATOM),
             'isCompleted' => $task->isCompleted(),
             'description' => $task->getDescription(),
+            'image' => $task->getImage()
         ], $tasks);
 
         return $this->json([
@@ -67,7 +76,7 @@ final class TaskController extends AbstractController
     }
 
     #[Route('api/task', name: 'api_create_task', methods: ['POST'])]
-    public function createTask(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function createTask(Request $request, EntityManagerInterface $entityManager, LoggerInterface $logger): JsonResponse
     {
         // Получаем данные из запроса
         $data = json_decode($request->getContent(), true);
@@ -82,6 +91,13 @@ final class TaskController extends AbstractController
 
         // Создаём задачу
         $task = new Task();
+        if (!empty($data['imageBase64'])) {
+            $imagePath = $this->imageSaver->saveBase64Image($data['imageBase64'], $logger);
+
+            if ($imagePath) {
+                $task->setImage($imagePath);
+            }
+        }
         $task
             ->setName($data['name'])
             ->setDescription($data['description'] ?? null)
@@ -109,7 +125,7 @@ final class TaskController extends AbstractController
     }
 
     #[Route('/api/task/{id}', name: 'api_edit_task', methods: ['PUT'])]
-    public function editTask(Request $request, TaskRepository $taskRepository, EntityManagerInterface $entityManager, $id, LoggerInterface $logger): JsonResponse
+    public function editTask(Request $request, TaskRepository $taskRepository, EntityManagerInterface $entityManager, $id, LoggerInterface $logger, Base64ImageSaver $imageSaver): JsonResponse
     {
 
         // Получаем задачу из базы
@@ -123,6 +139,20 @@ final class TaskController extends AbstractController
 
         // Получаем данные из запроса
         $data = json_decode($request->getContent(), true);
+        if (!empty($data['removeImage']) && $data['removeImage'] === true && $task->getImage()) {
+            $imageSaver->deleteImage($task->getImage());
+            $task->setImage(null);
+        }
+
+        if (!empty($data['imageBase64'])) {
+            if ($task->getImage()) {
+                $imageSaver->deleteImage($task->getImage());
+            }
+            $newPath = $imageSaver->saveBase64Image($data['imageBase64']);
+            if ($newPath) {
+                $task->setImage($newPath);
+            }
+        }
         $logger->info('Edit task request data', $data);
         // Обновляем поля задачи
         $task->setName($data['name']);

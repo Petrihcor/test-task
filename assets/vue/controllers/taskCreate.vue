@@ -15,7 +15,10 @@
           <label for="task_description">Описание задачи</label>
           <textarea v-model="task.description" id="task_description" class="form-control"></textarea>
         </div>
-
+        <div class="form-group">
+          <label for="task-image">Изображение:</label>
+          <input type="file" id="task-image" @change="handleFileUpload" />
+        </div>
         <button type="submit" class="btn btn-success">Создать</button>
       </form>
     </div>
@@ -31,8 +34,27 @@ const showForm = ref(false)
 
 const task = ref({
   name: '',
-  description: ''
+  description: '',
+  imageBase64: ''  // Добавляем поле для изображения
 })
+
+const selectedFile = ref(null);
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    // Преобразуем файл в Base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Получаем MIME тип файла (например, image/png, image/jpeg)
+      const fileType = file.type.split('/')[1]; // 'png', 'jpeg', 'gif' и т.д.
+
+      // Добавляем префикс для Base64 строки
+      task.value.imageBase64 = `data:image/${fileType};base64,${reader.result.split(',')[1]}`;
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
 const toggleForm = () => {
   showForm.value = !showForm.value
@@ -60,7 +82,8 @@ const submitTask = async () => {
       },
       body: JSON.stringify({
         name: task.value.name,
-        description: task.value.description
+        description: task.value.description,
+        imageBase64: task.value.imageBase64 // Добавляем изображение с префиксом
       })
     });
 
@@ -73,9 +96,9 @@ const submitTask = async () => {
     // Очищаем форму
     task.value.name = '';
     task.value.description = '';
-    showForm.value = false; // Можно спрятать форму после отправки
+    task.value.imageBase64 = ''; // Очищаем изображение
+    showForm.value = false;
 
-    // Здесь можно эмитить событие в родителя (если хочешь обновлять список задач)
     emit('task-created', data.task);
 
     alert('Задача успешно добавлена!');
@@ -87,15 +110,16 @@ const submitTask = async () => {
 }
 </script>
 
+
 <style scoped>
 /* Общая обёртка формы */
 #task-form-wrapper {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   max-width: 500px;
-  margin: 20px auto; /* Центрирование */
+  margin: 20px auto;
 }
 
 /* Поля формы */

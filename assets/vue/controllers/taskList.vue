@@ -18,7 +18,10 @@
       <h3>{{ task.name }}</h3>
       <p>{{ task.description }}</p>
       <p>Статус: {{ Boolean(task.isCompleted) ? 'Выполнено' : 'В процессе' }}</p>
-
+      <!-- Проверяем, есть ли изображение -->
+      <div v-if="task.image">
+        <img :src="task.image" alt="Task Image" class="task-image" />
+      </div>
       <button @click="openEditModal(task)">Редактировать</button>
       <button class="delete" @click="deleteTask(task.id)">Удалить</button>
     </div>
@@ -49,7 +52,7 @@ const filterStatus = ref('all');
 
 //пагинация
 const page = ref(1);
-const limit = ref(1);
+const limit = ref(10);
 const totalPages = ref(1);
 
 const changePage = (p) => {

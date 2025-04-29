@@ -17,6 +17,12 @@
           Выполнено
         </label>
 
+        <div v-if="task.image && !removeImage">
+          <button type="button" @click="removeCurrentImage">Удалить текущее изображение</button>
+        </div>
+
+        <label for="edit-task-image">Новое изображение:</label>
+        <input type="file" id="edit-task-image" @change="handleFileUpload" />
         <button type="submit">Сохранить</button>
       </form>
     </div>
@@ -34,8 +40,19 @@ const task = ref({
   id: '',
   name: '',
   description: '',
-  isCompleted: false
+  isCompleted: false,
+  image: ''
 })
+const selectedFile = ref(null);
+const removeImage = ref(false);
+
+function handleFileUpload(event) {
+  selectedFile.value = event.target.files[0];
+}
+
+function removeCurrentImage() {
+  removeImage.value = true;
+}
 
 function openModal(taskData) {
   task.value = {
